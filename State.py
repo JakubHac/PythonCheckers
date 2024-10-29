@@ -1,0 +1,11 @@
+screen = None
+clock = None
+delta_time = 1000/60
+screen_color = (15,15,15)
+debug_mouse_clicks = False
+active_screens = []
+noto_font_name = "NotoSans-Regular.ttf"
+noto_jp_font_name = "NotoSansJP-Regular.ttf"
+close_requested = False
+screen_width = 1000
+screen_height = 1000
