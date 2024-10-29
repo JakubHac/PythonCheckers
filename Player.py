@@ -1,6 +1,3 @@
 class Player:
-    def __init__(self, name, age):
+    def __init__(self, name):
         self.name = name
-
-    def print_player(self):
-        print(f"Name: {self.name}")

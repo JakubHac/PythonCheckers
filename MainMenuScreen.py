@@ -40,6 +40,7 @@ class MainMenuScreen(Screen):
         Singletons.GameScreen.setup_pvp_game()
         State.active_screens.append(Singletons.GameScreen)
         State.active_screens.remove(self)
+        Singletons.GameScreen.start_game()
         pass
 
     def start_pve_game(self):
@@ -49,6 +50,7 @@ class MainMenuScreen(Screen):
         Singletons.GameScreen.setup_pve_game()
         State.active_screens.append(Singletons.GameScreen)
         State.active_screens.remove(self)
+        Singletons.GameScreen.start_game()
         pass
 
     def quit_game(self):
