@@ -1,2 +1,6 @@
-white = (255,255,255)
-black = (0,0,0)
+white: tuple[int, int, int] = (255,255,255)
+black: tuple[int, int, int] = (0,0,0)
+white_tile_color: tuple[int, int, int] = (220, 180, 120)
+black_tile_color: tuple[int, int, int] = (120, 55, 25)
+white_puck_color: tuple[int, int, int] = (255, 255, 255)
+black_puck_color: tuple[int, int, int] = (0, 0, 0)

@@ -3,7 +3,7 @@ import pygame
 from Blittable import Blittable
 
 class BlittableText(Blittable):
-    def __init__(self, pos, size, color, font_name, to_display):
+    def __init__(self, pos, size: int, color, font_name: str, to_display: str):
         self.font = pygame.font.Font(font_name, size)
         self.text = self.font.render(to_display, True, color)
         super().__init__(pos, (size,size), color)

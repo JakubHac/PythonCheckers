@@ -7,6 +7,9 @@ from Button import Button
 from GameScreen import GameScreen
 import Singletons
 
+def quit_game():
+    State.close_requested = True
+
 class MainMenuScreen(Screen):
     def __init__(self):
         if Singletons.MainMenuScreen is not None:
@@ -26,7 +29,7 @@ class MainMenuScreen(Screen):
         footer_text = BlittableText((State.screen_width / 2, State.screen_height - footer_size), footer_size, Colors.white, State.noto_font_name, "Jakub Hac 19755")
         start_pvp_button = Button((button_x, button_y - button_y_offset), button_size, Colors.white, "Człowiek vs Człowiek", button_font_size, State.noto_font_name, Colors.black, self.start_pvp_game)
         start_pve_button = Button((button_x, button_y), button_size, Colors.white, "Człowiek vs Maszyna", button_font_size, State.noto_font_name, Colors.black, self.start_pve_game)
-        quit_button = Button((button_x, button_y + button_y_offset), button_size, Colors.white, "Zamknij", button_font_size, State.noto_font_name, Colors.black, self.quit_game)
+        quit_button = Button((button_x, button_y + button_y_offset), button_size, Colors.white, "Zamknij", button_font_size, State.noto_font_name, Colors.black, quit_game)
         self.add_blittable(title_text)
         self.add_blittable(footer_text)
         self.add_clickable(start_pvp_button)
@@ -35,23 +38,18 @@ class MainMenuScreen(Screen):
 
     def start_pvp_game(self):
         if Singletons.GameScreen is None:
-            game_screen = GameScreen()
+            GameScreen()
 
         Singletons.GameScreen.setup_pvp_game()
         State.active_screens.append(Singletons.GameScreen)
         State.active_screens.remove(self)
-        Singletons.GameScreen.start_game()
         pass
 
     def start_pve_game(self):
         if Singletons.GameScreen is None:
-            game_screen = GameScreen()
+            GameScreen()
 
         Singletons.GameScreen.setup_pve_game()
         State.active_screens.append(Singletons.GameScreen)
         State.active_screens.remove(self)
-        Singletons.GameScreen.start_game()
         pass
-
-    def quit_game(self):
-        State.close_requested = True
