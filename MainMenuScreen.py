@@ -30,6 +30,10 @@ class MainMenuScreen(Screen):
         start_pvp_button = Button((button_x, button_y - button_y_offset), button_size, Colors.white, "Człowiek vs Człowiek", button_font_size, State.noto_font_name, Colors.black, self.start_pvp_game)
         start_pve_button = Button((button_x, button_y), button_size, Colors.white, "Człowiek vs Maszyna", button_font_size, State.noto_font_name, Colors.black, self.start_pve_game)
         quit_button = Button((button_x, button_y + button_y_offset), button_size, Colors.white, "Zamknij", button_font_size, State.noto_font_name, Colors.black, quit_game)
+        if State.show_debug_board:
+            start_test_board_button = Button((button_x, button_y + button_y_offset * 2), button_size, Colors.white, "Test", button_font_size, State.noto_font_name, Colors.black, self.start_test_game)
+            self.add_clickable(start_test_board_button)
+
         self.add_blittable(title_text)
         self.add_blittable(footer_text)
         self.add_clickable(start_pvp_button)
@@ -50,6 +54,15 @@ class MainMenuScreen(Screen):
             GameScreen()
 
         Singletons.GameScreen.setup_pve_game()
+        State.active_screens.append(Singletons.GameScreen)
+        State.active_screens.remove(self)
+        pass
+
+    def start_test_game(self):
+        if Singletons.GameScreen is None:
+            GameScreen()
+
+        Singletons.GameScreen.setup_test_game()
         State.active_screens.append(Singletons.GameScreen)
         State.active_screens.remove(self)
         pass
