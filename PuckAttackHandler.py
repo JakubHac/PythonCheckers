@@ -17,7 +17,7 @@ def calculate_possible_attacks(ally_pucks: list[Puck], enemy_pucks: list[Puck]) 
     while True:
         pucks_with_extended_attacks = []
         for puck in pucks_with_extendable_attacks:
-            if extend_attacks(puck, ally_pucks, enemy_pucks, pucks_with_extended_attacks):
+            if extend_attacks(puck, ally_pucks, enemy_pucks, extend_attacks_of_length):
                 pucks_with_extended_attacks.append(puck)
         if len(pucks_with_extended_attacks) == 0:
             break
@@ -144,7 +144,7 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
 def execute_attack(attack: list[tuple[int,int]], puck: Puck, enemies: list[Puck]):
     for e in enemies:
         for tile in attack:
-            if e.pos == tile:
+            if e.position_on_board == tile:
                 enemies.remove(e)
     [BoardOperations.move_puck_after_attack(puck, tile) for tile in attack]
     pass
