@@ -42,6 +42,11 @@ def this_puck_has_longest_attack(puck: Puck, allies_sorted_by_possible_attacks: 
     return max_length_of_our_attack == max_length_of_allied_attack, max_length_of_allied_attack > 0
 
 def extend_attacks(puck: Puck, allies_before_any_attack: list[Puck], enemies_before_any_attack: list[Puck], extend_attacks_of_length) -> bool: #return True if any attack was extended, False otherwise
+    if len([attack for attack in puck.possible_attacks if len(attack) > len(enemies_before_any_attack)]) > 0:
+        print("Puck at " + str(puck.position_on_board) + " has more possible attacks (" + str(len(puck.possible_attacks)) +") than enemies " + str(len(enemies_before_any_attack)) + ", something went wrong")
+        for attack in puck.possible_attacks:
+            print(attack)
+        return False
     extended_any_attack = False
     print("Extending attacks for puck at " + str(puck.position_on_board) + " with " + str(len(puck.possible_attacks)) + " possible attacks")
     puck_pos_before = copy.deepcopy(puck.position_on_board)
