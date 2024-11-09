@@ -1,11 +1,12 @@
+import Colors
 from Puck import Puck
 import State
 import Singletons
 
 class Player:
-    def __init__(self, name: str, is_white: bool, puck_color: tuple[int,int,int], on_puck_click: callable(Puck)):
+    def __init__(self, name: str, puck_color: tuple[int,int,int], on_puck_click: callable(Puck)):
         self.name = name
-        self.is_white = is_white
+        self.is_white = puck_color == Colors.white_puck_color
         self.puck_color = puck_color
         self.pucks: list[Puck] = []
         self.on_puck_click: callable(Puck) = on_puck_click

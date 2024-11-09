@@ -44,19 +44,19 @@ class GameScreen(Screen):
 
     def setup_test_game(self):
         State.is_debug_board = True
-        State.white_player = Human("Biały Gracz", True, Colors.white_puck_color, Game.puck_clicked)
-        State.black_player = Human("Czarny Gracz", False, Colors.black_puck_color, Game.puck_clicked)
+        State.white_player = Human("Biały Gracz", Colors.white_puck_color, Game.puck_clicked)
+        State.black_player = Human("Czarny Gracz", Colors.black_puck_color, Game.puck_clicked)
         Game.start()
 
     def setup_pve_game(self):
         State.is_debug_board = False
         human_is_white = MathUtil.random_bool()
         if human_is_white:
-            State.white_player = Human("Gracz (Białe)", True, Colors.white_puck_color, Game.puck_clicked)
-            State.black_player = Bot("Komputer (Czarne)", False, Colors.black_puck_color, Game.puck_clicked)
+            State.white_player = Human("Gracz (Białe)", Colors.white_puck_color, Game.puck_clicked)
+            State.black_player = Bot("Komputer (Czarne)", Colors.black_puck_color, Game.puck_clicked)
         else:
-            State.white_player = Human("Komputer (Białe)", True, Colors.white_puck_color, Game.puck_clicked)
-            State.black_player = Bot("Gracz (Czarne)", False, Colors.black_puck_color, Game.puck_clicked)
+            State.white_player = Human("Komputer (Białe)", Colors.white_puck_color, Game.puck_clicked)
+            State.black_player = Bot("Gracz (Czarne)", Colors.black_puck_color, Game.puck_clicked)
         Game.start()
 
     def add_puck(self, puck):
@@ -67,9 +67,3 @@ class GameScreen(Screen):
         self.remove_clickable(puck)
         self.remove_tickable(puck)
         pass
-
-    def handle_click(self, mouse_pos):
-        super().handle_click(mouse_pos)
-        if State.is_debug_board:
-            #handle puck toggling on tiles
-            print("Click at " + str(mouse_pos))

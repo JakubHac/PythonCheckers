@@ -1,6 +1,6 @@
 from GameState import GameState
 
-debug_mouse_clicks = True
+debug_mouse_clicks = False
 show_debug_board = True
 is_debug_board = False
 screen = None

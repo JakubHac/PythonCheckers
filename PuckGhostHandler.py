@@ -55,6 +55,7 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
     #not working 100% correct, attacking in sequence isn't working properly
     State.chosen_puck.possible_attacks = [attack for attack in State.chosen_puck.possible_attacks if attack[:len(State.current_attack_sequence)] == State.current_attack_sequence and not attack == State.current_attack_sequence]
     despawn_puck_ghosts()
+    print("Attack ghost clicked, current game state: " + str(State.game_state))
     if State.game_state == GameState.WhiteChooseAttack:
         player_who_lost_puck = State.black_player
     else:
@@ -67,8 +68,8 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
     if len(State.chosen_puck.possible_attacks) == 0:
         State.current_attack_sequence = []
         if len(player_who_lost_puck.pucks) == 0:
-            print("Player " + ("white" if player_who_lost_puck.is_black else "black") + " lost")
-            State.game_state = GameState.WhiteWon if player_who_lost_puck.is_black else GameState.BlackWon
+            print("Player " + ("white" if player_who_lost_puck.is_white else "black") + " lost")
+            State.game_state = GameState.WhiteWon if not player_who_lost_puck.is_white else GameState.BlackWon
         else:
             State.game_state = GameState.WhiteChooseOwnPuck if State.chosen_puck.is_black() else GameState.BlackChooseOwnPuck
             if State.chosen_puck.is_black:

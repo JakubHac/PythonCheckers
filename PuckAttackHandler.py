@@ -147,9 +147,11 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
     pass
 
 def execute_attack(attack: list[tuple[int,int]], puck: Puck, enemies: list[Puck]):
-    for e in enemies:
-        for tile in attack:
-            if e.position_on_board == tile:
-                enemies.remove(e)
+    removed_enemies = []
+
+    for e in [enemy for enemy in enemies if enemy.position_on_board in attack]:
+        enemies.remove(e)
+        removed_enemies.append(e)
+    print("Attack " + str(attack) + " executed by puck at " + str(puck.position_on_board) + ", removed " + str([enemy.position_on_board for enemy in removed_enemies]) + " enemies")
     [BoardOperations.move_puck_after_attack(puck, tile) for tile in attack]
     pass

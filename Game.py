@@ -88,7 +88,7 @@ def set_tile(board_pos: tuple[int, int], tile_state: TileState):
     elif tile_state == TileState.White:
         if len(white_puck_on_tile) == 0:
             if len(black_puck_on_tile) > 0:
-                State.white_player.remove_puck(white_puck_on_tile[0])
+                State.black_player.remove_puck(black_puck_on_tile[0])
             State.white_player.add_puck(board_pos)
     elif tile_state == TileState.Black:
         if len(black_puck_on_tile) == 0:
