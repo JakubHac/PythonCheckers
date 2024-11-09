@@ -9,7 +9,7 @@ import Singletons
 import UidGenerator
 
 class Puck(Clickable, Tickable):
-    def __init__(self, position_on_board: tuple[int, int], size, color, on_puck_click, uid=None):
+    def __init__(self, position_on_board: tuple[int, int], size: tuple[int, int], color: tuple[int, int, int], on_puck_click: callable, uid : [int] = None):
         self.position_on_board = position_on_board
         self.on_puck_click = on_puck_click
         self.is_dame = False

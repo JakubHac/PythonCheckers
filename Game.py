@@ -1,8 +1,11 @@
+import Colors
 import State
 from Puck import Puck
 from GameState import GameState
 import PuckGhostHandler
 import PuckAttackHandler
+from TileState import TileState
+
 
 def start():
     State.chosen_puck = None
@@ -66,3 +69,51 @@ def clear_state_after_game():
     State.game_state = GameState.WhiteChooseOwnPuck
     State.white_pucks_sorted_by_possible_attacks = []
     State.black_pucks_sorted_by_possible_attacks = []
+
+def set_tile(board_pos: tuple[int, int], tile_state: TileState):
+    if not State.is_debug_board:
+        print("Cannot set tile on non-debug board")
+        return #only for debug board
+    if (board_pos[0] + board_pos[1]) % 2 != 1:
+        print("Cannot set tile on white tile")
+        return
+    print("Setting tile at " + str(board_pos) + " to " + str(tile_state))
+    white_puck_on_tile = [puck for puck in State.white_player.pucks if puck.position_on_board == board_pos]
+    black_puck_on_tile = [puck for puck in State.black_player.pucks if puck.position_on_board == board_pos]
+    if tile_state == TileState.Empty:
+        if len(white_puck_on_tile) > 0:
+            State.white_player.remove_puck(white_puck_on_tile[0])
+        elif len(black_puck_on_tile) > 0:
+            State.black_player.remove_puck(black_puck_on_tile[0])
+    elif tile_state == TileState.White:
+        if len(white_puck_on_tile) == 0:
+            if len(black_puck_on_tile) > 0:
+                State.white_player.remove_puck(white_puck_on_tile[0])
+            State.white_player.add_puck(board_pos)
+    elif tile_state == TileState.Black:
+        if len(black_puck_on_tile) == 0:
+            if len(white_puck_on_tile) > 0:
+                State.white_player.remove_puck(white_puck_on_tile[0])
+            State.black_player.add_puck(board_pos)
+    elif tile_state == TileState.UnknownDame:
+        if len(white_puck_on_tile) > 0:
+            white_puck_on_tile[0].is_dame = True
+        elif len(black_puck_on_tile) > 0:
+            black_puck_on_tile[0].is_dame = True
+
+    State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+    State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
+    pass
+
+
+def swap_turn():
+    if State.game_state == GameState.WhiteChooseOwnPuck:
+        State.game_state = GameState.BlackChooseOwnPuck
+        State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+        return
+    if State.game_state == GameState.BlackChooseOwnPuck:
+        State.game_state = GameState.WhiteChooseOwnPuck
+        State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
+        return
+    print("Cannot swap turn in state " + str(State.game_state))
+    pass
