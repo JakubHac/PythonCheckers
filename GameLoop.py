@@ -35,6 +35,17 @@ def execute_loop(input_events):
             # promote puck to dame
             Game.set_tile(mouse_board_pos, TileState.UnknownDame)
             pass;
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+            # print all pucks possible attacks
+            if not State.is_debug_board:
+                print("Cannot print pucks attacks on non-debug board")
+                return
+            pucks_attacks = {}
+            for puck in [p for p in State.white_player.pucks if len(p.possible_attacks) > 0]:
+                pucks_attacks[puck.position_on_board] = puck.possible_attacks
+            for puck in [p for p in State.black_player.pucks if len(p.possible_attacks) > 0]:
+                pucks_attacks[puck.position_on_board] = puck.possible_attacks
+            print("Pucks possible attacks: " + str(pucks_attacks))
 
     for screen in State.active_screens:
         screen.tick()

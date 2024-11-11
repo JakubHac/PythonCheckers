@@ -1,4 +1,3 @@
-import Colors
 import State
 from Puck import Puck
 from GameState import GameState
@@ -20,11 +19,9 @@ def try_select_puck_for_move(puck: Puck):
     sorted_allies = State.white_pucks_sorted_by_possible_attacks if puck.is_white() else State.black_pucks_sorted_by_possible_attacks
     if not PuckAttackHandler.this_puck_has_longest_attack(puck, sorted_allies):
         # TODO: show message that this puck cannot attack
-        print("This puck cannot attack")
         return
     State.chosen_puck = puck
     PuckGhostHandler.despawn_puck_ghosts()
-    print("Puck has " + str(len(puck.possible_attacks)) + " possible attacks")
     if len(puck.possible_attacks) > 0:
         State.game_state = GameState.WhiteChooseAttack if puck.is_white() else GameState.BlackChooseAttack
         PuckGhostHandler.spawn_attack_ghosts()
@@ -37,21 +34,17 @@ def try_select_puck_for_move(puck: Puck):
 
 def puck_clicked(puck: Puck):
     #handle choosing pucks for move
-    print("Current state: " + str(State.game_state))
     if State.game_state == GameState.WhiteChooseOwnPuck or State.game_state == GameState.BlackChooseOwnPuck:
         try_select_puck_for_move(puck)
-        print("Updated state: " + str(State.game_state))
     #handle puck movement
     elif State.game_state == GameState.WhiteChooseMove or State.game_state == GameState.BlackChooseMove:
         if puck != State.chosen_puck:
             if puck.color == State.chosen_puck.color:
                 try_select_puck_for_move(puck)
-                print("Updated state: " + str(State.game_state))
             return
         PuckGhostHandler.despawn_puck_ghosts()
         State.game_state = GameState.WhiteChooseOwnPuck if State.chosen_puck.is_white() else GameState.BlackChooseOwnPuck
         State.chosen_puck = None
-        print("Updated state: " + str(State.game_state))
     pass
 
 def quit_game():
@@ -77,7 +70,6 @@ def set_tile(board_pos: tuple[int, int], tile_state: TileState):
     if (board_pos[0] + board_pos[1]) % 2 != 1:
         print("Cannot set tile on white tile")
         return
-    print("Setting tile at " + str(board_pos) + " to " + str(tile_state))
     white_puck_on_tile = [puck for puck in State.white_player.pucks if puck.position_on_board == board_pos]
     black_puck_on_tile = [puck for puck in State.black_player.pucks if puck.position_on_board == board_pos]
     if tile_state == TileState.Empty:

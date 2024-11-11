@@ -1,7 +1,7 @@
 import copy
 import traceback
-
 import BoardOperations
+import PythonUtils
 import State
 from Puck import Puck
 
@@ -13,21 +13,25 @@ def calculate_possible_attacks(ally_pucks: list[Puck], enemy_pucks: list[Puck]) 
     ally_pucks_that_cannot_attack = [puck for puck in ally_pucks if len(puck.possible_attacks) == 0]
     # try to extend all attacks, until no attack can be extended
     pucks_with_extendable_attacks = ally_pucks_that_can_attack.copy()
-    extend_attacks_of_length = 1
+    max_attack_length = 1
     while True:
         pucks_with_extended_attacks = []
         for puck in pucks_with_extendable_attacks:
-            if extend_attacks(puck, ally_pucks, enemy_pucks, extend_attacks_of_length):
+            if extend_attacks(puck, ally_pucks, enemy_pucks, max_attack_length):
                 pucks_with_extended_attacks.append(puck)
         if len(pucks_with_extended_attacks) == 0:
             break
-        extend_attacks_of_length += 1
+        max_attack_length += 1
         pucks_with_extendable_attacks = pucks_with_extended_attacks
 
     # sort by the longest attack
     ally_pucks_that_can_attack.sort(key=lambda x: max(len(attack) for attack in x.possible_attacks), reverse=True)
     out_ally_pucks = ally_pucks_that_can_attack
     out_ally_pucks += ally_pucks_that_cannot_attack
+
+    for puck in out_ally_pucks:
+        puck.possible_attacks = [attack for attack in puck.possible_attacks if len(attack) == max_attack_length]
+
     return out_ally_pucks
 
 def this_puck_has_longest_attack(puck: Puck, allies_sorted_by_possible_attacks: list[Puck]) -> tuple[bool, bool]:
@@ -42,20 +46,16 @@ def this_puck_has_longest_attack(puck: Puck, allies_sorted_by_possible_attacks: 
     return max_length_of_our_attack == max_length_of_allied_attack, max_length_of_allied_attack > 0
 
 def extend_attacks(puck: Puck, allies_before_any_attack: list[Puck], enemies_before_any_attack: list[Puck], extend_attacks_of_length) -> bool: #return True if any attack was extended, False otherwise
-    if len([attack for attack in puck.possible_attacks if len(attack) > len(enemies_before_any_attack)]) > 0:
+    if any([attack for attack in puck.possible_attacks if len(attack) > len(enemies_before_any_attack)]):
         print("Puck at " + str(puck.position_on_board) + " has more possible attacks (" + str(len(puck.possible_attacks)) +") than enemies " + str(len(enemies_before_any_attack)) + ", something went wrong")
         for attack in puck.possible_attacks:
             print(attack)
         return False
     extended_any_attack = False
-    print("Extending attacks for puck at " + str(puck.position_on_board) + " with " + str(len(puck.possible_attacks)) + " possible attacks")
-    puck_pos_before = copy.deepcopy(puck.position_on_board)
     possible_attacks = [attack for attack in puck.possible_attacks if len(attack) == extend_attacks_of_length] #we will modify the list, so we need a copy
     for attack in possible_attacks:
         if extend_attack(attack, puck, allies_before_any_attack, enemies_before_any_attack):
             extended_any_attack = True
-    puck.move_to(puck_pos_before)
-    print("After extending attacks, puck at " + str(puck.position_on_board) + " has " + str(len(puck.possible_attacks)) + " possible attacks")
     return extended_any_attack
 
 def count_puck_possible_single_attacks_from_current_tile(puck: Puck, allies: list[Puck], enemies: list[Puck]):
@@ -134,6 +134,7 @@ def fill_puck_attack_tile(puck: Puck, x_change: int, y_change: int, allies: list
 def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_attack: list[Puck], enemies_before_any_attack: list[Puck]) -> bool: #return True if attack was extended, False otherwise
     extended = False
     enemies = copy.deepcopy(enemies_before_any_attack)
+    puck_pos_before = copy.deepcopy(puck.position_on_board)
     allies = [ally for ally in allies_before_any_attack if not ally.is_same_puck(puck)]
     execute_attack(attack, puck, enemies)
     for direction in State.directions:
@@ -143,15 +144,15 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
         else:
             if fill_puck_attack_tile(puck, direction[0], direction[1], allies, enemies, attack):
                 extended = True
+    puck.move_to(puck_pos_before)
     return extended
     pass
 
 def execute_attack(attack: list[tuple[int,int]], puck: Puck, enemies: list[Puck]):
     removed_enemies = []
-
-    for e in [enemy for enemy in enemies if enemy.position_on_board in attack]:
+    for e in [enemy for enemy in enemies if PythonUtils.list_contains(attack, enemy.position_on_board)]:
+        removed_enemies.append(e.position_on_board)
         enemies.remove(e)
-        removed_enemies.append(e)
-    print("Attack " + str(attack) + " executed by puck at " + str(puck.position_on_board) + ", removed " + str([enemy.position_on_board for enemy in removed_enemies]) + " enemies")
-    [BoardOperations.move_puck_after_attack(puck, tile) for tile in attack]
+    for tile in attack:
+        BoardOperations.move_puck_after_attack(puck, tile)
     pass

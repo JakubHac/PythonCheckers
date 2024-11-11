@@ -1,4 +1,5 @@
 import BoardOperations
+import PythonUtils
 import State
 from GameState import GameState
 from PuckGhost import PuckGhost
@@ -38,8 +39,7 @@ def move_puck_ghost_clicked(puck_ghost: PuckGhost):
     elif State.game_state == GameState.BlackChooseMove:
         State.game_state = GameState.WhiteChooseOwnPuck
 
-    puck_ghost_position = puck_ghost.position_on_board
-    BoardOperations.move_puck(State.chosen_puck, puck_ghost_position)
+    State.chosen_puck.move_to(puck_ghost.position_on_board)
 
     if State.chosen_puck.is_black:
         State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks,State.black_player.pucks)
@@ -50,12 +50,10 @@ def move_puck_ghost_clicked(puck_ghost: PuckGhost):
     despawn_puck_ghosts()
 
 def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
-    BoardOperations.move_puck(State.chosen_puck, puck_ghost.position_on_board)
+    State.chosen_puck.move_to(puck_ghost.position_on_board)
     State.current_attack_sequence.append(puck_ghost.attack_pos)
-    #not working 100% correct, attacking in sequence isn't working properly
-    State.chosen_puck.possible_attacks = [attack for attack in State.chosen_puck.possible_attacks if attack[:len(State.current_attack_sequence)] == State.current_attack_sequence and not attack == State.current_attack_sequence]
-    despawn_puck_ghosts()
-    print("Attack ghost clicked, current game state: " + str(State.game_state))
+
+    State.chosen_puck.possible_attacks = [attack for attack in State.chosen_puck.possible_attacks if PythonUtils.is_a_beginning_of_b(State.current_attack_sequence, attack) and not PythonUtils.is_list_a_equal_to_b(attack, State.current_attack_sequence)]
     if State.game_state == GameState.WhiteChooseAttack:
         player_who_lost_puck = State.black_player
     else:
@@ -64,7 +62,7 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
     killed_puck = [puck for puck in player_who_lost_puck.pucks if puck.position_on_board == puck_ghost.attack_pos][0]
     player_who_lost_puck.pucks.remove(killed_puck)
     killed_puck.destroy()
-
+    despawn_puck_ghosts()
     if len(State.chosen_puck.possible_attacks) == 0:
         State.current_attack_sequence = []
         if len(player_who_lost_puck.pucks) == 0:
