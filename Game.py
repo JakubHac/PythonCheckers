@@ -1,8 +1,11 @@
+import traceback
+
 import State
 from Puck import Puck
 from GameState import GameState
 import PuckGhostHandler
 import PuckAttackHandler
+from State import game_state
 from TileState import TileState
 
 
@@ -37,12 +40,22 @@ def puck_clicked(puck: Puck):
     if State.game_state == GameState.WhiteChooseOwnPuck or State.game_state == GameState.BlackChooseOwnPuck:
         try_select_puck_for_move(puck)
     #handle puck movement
-    elif State.game_state == GameState.WhiteChooseMove or State.game_state == GameState.BlackChooseMove:
+    elif State.game_state == GameState.WhiteChooseMove or State.game_state == GameState.BlackChooseMove or State.game_state == GameState.WhiteChooseAttack or State.game_state == GameState.BlackChooseAttack:
         if puck != State.chosen_puck:
             if puck.color == State.chosen_puck.color:
                 try_select_puck_for_move(puck)
             return
         PuckGhostHandler.despawn_puck_ghosts()
+
+        if game_state == GameState.WhiteChooseMove:
+            State.game_state = GameState.WhiteChooseOwnPuck
+        elif game_state == GameState.WhiteChooseAttack:
+            State.game_state = GameState.WhiteChooseOwnPuck
+        elif game_state == GameState.BlackChooseMove:
+            State.game_state = GameState.BlackChooseOwnPuck
+        elif game_state == GameState.BlackChooseAttack:
+            State.game_state = GameState.BlackChooseOwnPuck
+
         State.game_state = GameState.WhiteChooseOwnPuck if State.chosen_puck.is_white() else GameState.BlackChooseOwnPuck
         State.chosen_puck = None
     pass

@@ -34,16 +34,11 @@ def calculate_possible_attacks(ally_pucks: list[Puck], enemy_pucks: list[Puck]) 
 
     return out_ally_pucks
 
-def this_puck_has_longest_attack(puck: Puck, allies_sorted_by_possible_attacks: list[Puck]) -> tuple[bool, bool]:
-    try:
-        max_length_of_allied_attack = max(max(len(attack) for attack in allied_puck.possible_attacks) for allied_puck in allies_sorted_by_possible_attacks)
-    except ValueError:
-        max_length_of_allied_attack = 0
-    try:
-        max_length_of_our_attack = max(len(attack) for attack in puck.possible_attacks)
-    except ValueError:
-        max_length_of_our_attack = 0
-    return max_length_of_our_attack == max_length_of_allied_attack, max_length_of_allied_attack > 0
+def this_puck_has_longest_attack(puck: Puck, allies_sorted_by_possible_attacks: list[Puck]) -> bool:
+    best_ally = allies_sorted_by_possible_attacks[0]
+    max_length_of_allied_attack = 0 if len(best_ally.possible_attacks) == 0 else max(len(attack) for attack in best_ally.possible_attacks)
+    max_length_of_our_attack = 0 if len(puck.possible_attacks) == 0 else max(len(attack) for attack in puck.possible_attacks)
+    return max_length_of_our_attack == max_length_of_allied_attack
 
 def extend_attacks(puck: Puck, allies_before_any_attack: list[Puck], enemies_before_any_attack: list[Puck], extend_attacks_of_length) -> bool: #return True if any attack was extended, False otherwise
     if any([attack for attack in puck.possible_attacks if len(attack) > len(enemies_before_any_attack)]):
