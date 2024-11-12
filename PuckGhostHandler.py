@@ -70,12 +70,10 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
             State.game_state = GameState.WhiteWon if not player_who_lost_puck.is_white else GameState.BlackWon
         else:
             State.game_state = GameState.WhiteChooseOwnPuck if State.chosen_puck.is_black() else GameState.BlackChooseOwnPuck
-            if State.chosen_puck.is_black:
-                State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(
-                    State.white_player.pucks, State.black_player.pucks)
+            if State.chosen_puck.is_black():
+                State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
             else:
-                State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(
-                    State.black_player.pucks, State.white_player.pucks)
+                State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
         State.chosen_puck = None
     else:
         spawn_attack_ghosts()
