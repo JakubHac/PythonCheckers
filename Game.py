@@ -111,6 +111,7 @@ def set_tile(board_pos: tuple[int, int], tile_state: TileState):
             if black_puck_on_tile[0].is_dame:
                 print("Black puck on tile " + str(board_pos) + " is already a dame")
             else:
+                print("Black puck on tile " + str(board_pos) + " promoted to dame")
                 black_puck_on_tile[0].set_dame()
         else:
             print("No puck to promote to dame on tile " + str(board_pos))

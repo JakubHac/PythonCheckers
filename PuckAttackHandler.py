@@ -57,14 +57,22 @@ def count_puck_possible_single_attacks_from_current_tile(puck: Puck, allies: lis
     is_dame = puck.is_dame
     for direction in State.directions:
         if is_dame:
-            if fill_puck_attack_in_direction(puck, direction[0], direction[1], allies, enemies):
+            if fill_dame_attack_in_direction(puck, direction[0], direction[1], allies, enemies):
                 return True
         else:
             if fill_puck_attack_tile(puck, direction[0], direction[1], allies, enemies):
                 return True
 
-def fill_puck_attack_in_direction(puck: Puck, x_change: int, y_change: int, allies: list[Puck], enemies: list[Puck], current_attack: list[tuple[int,int]] = None) -> bool: #return True if attack is possible, False otherwise
+def fill_dame_attack_in_direction(puck: Puck, x_change: int, y_change: int, allies: list[Puck], enemies: list[Puck], current_attack: list[tuple[int,int]] = None) -> bool: #return True if attack is possible, False otherwise
+    if not puck.is_dame:
+        print("This puck is not a dame")
+        return False
     for i in range(1,8): #<1;8), the most tiles a puck can move is 7
+        is_occupied_by_ally = not BoardOperations.is_tile_empty((puck.position_on_board[0] + x_change * i, puck.position_on_board[1] + y_change * i), allies)
+        # if any ally is in the way, we cannot attack in this direction
+        if is_occupied_by_ally:
+            return False
+        # return first to make sure we attack the first enemy in the direction
         if fill_puck_attack_tile(puck, x_change * i, y_change * i, allies, enemies, current_attack):
             return True
     return False
@@ -134,7 +142,7 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
     execute_attack(attack, puck, enemies)
     for direction in State.directions:
         if puck.is_dame:
-            if fill_puck_attack_in_direction(puck, direction[0], direction[1], allies, enemies, attack):
+            if fill_dame_attack_in_direction(puck, direction[0], direction[1], allies, enemies, attack):
                 extended = True
         else:
             if fill_puck_attack_tile(puck, direction[0], direction[1], allies, enemies, attack):
