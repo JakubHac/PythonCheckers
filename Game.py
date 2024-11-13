@@ -102,9 +102,18 @@ def set_tile(board_pos: tuple[int, int], tile_state: TileState):
             State.black_player.add_puck(board_pos)
     elif tile_state == TileState.UnknownDame:
         if len(white_puck_on_tile) > 0:
-            white_puck_on_tile[0].is_dame = True
+            if white_puck_on_tile[0].is_dame:
+                print("White puck on tile " + str(board_pos) + " is already a dame")
+            else:
+                print("White puck on tile " + str(board_pos) + " promoted to dame")
+                white_puck_on_tile[0].set_dame()
         elif len(black_puck_on_tile) > 0:
-            black_puck_on_tile[0].is_dame = True
+            if black_puck_on_tile[0].is_dame:
+                print("Black puck on tile " + str(board_pos) + " is already a dame")
+            else:
+                black_puck_on_tile[0].set_dame()
+        else:
+            print("No puck to promote to dame on tile " + str(board_pos))
 
     State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
     State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
