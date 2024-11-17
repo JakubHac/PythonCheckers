@@ -1,5 +1,4 @@
 import copy
-import traceback
 import BoardOperations
 import MathUtil
 import PythonUtils
@@ -75,6 +74,10 @@ def fill_dame_attack_in_direction(puck: Puck, x_change: int, y_change: int, alli
         if is_occupied_by_ally:
             return False
         # return first to make sure we attack the first enemy in the direction
+        previous_tile = (puck.position_on_board[0] + x_change * (i - 1), puck.position_on_board[1] + y_change * (i - 1))
+        if not BoardOperations.is_tile_to_take(previous_tile, enemies + allies):
+            return False
+
         if fill_puck_attack_tile(puck, x_change * i, y_change * i, allies, enemies, current_attack):
             return True
     return False
