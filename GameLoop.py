@@ -1,9 +1,7 @@
 import pygame
-
 import Game
 import State
 from TileState import TileState
-
 
 def execute_loop(input_events):
     State.delta_time = State.clock.get_time()

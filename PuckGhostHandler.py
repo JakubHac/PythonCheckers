@@ -60,6 +60,20 @@ def spawn_attack_ghosts():
                         tiles_with_ghosts.add(new_tile)
                 pass
             else: #spawn ghosts that will lead to the next position in attack
+                next_attack = attack[attack_sequence_length + 1]
+                for i in range(1, 8):
+                    new_tile = tile[0] + i * direction[0], tile[1] + i * direction[1]
+                    if not BoardOperations.is_tile_on_board(new_tile):
+                        break
+                    if not BoardOperations.is_tile_empty(new_tile, State.white_player.pucks + State.black_player.pucks):
+                        break
+                    x_diff = next_attack[0] - new_tile[0]
+                    y_diff = next_attack[1] - new_tile[1]
+                    if abs(x_diff) != abs(y_diff):
+                        continue
+                    if new_tile not in tiles_with_ghosts:
+                        PuckGhost(new_tile, State.puck_size, puck.color, attack_puck_ghost_clicked, tile)
+                        tiles_with_ghosts.add(new_tile)
                 pass
 
 def move_puck_ghost_clicked(puck_ghost: PuckGhost):
