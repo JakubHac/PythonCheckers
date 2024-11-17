@@ -75,7 +75,8 @@ def fill_dame_attack_in_direction(puck: Puck, x_change: int, y_change: int, alli
             return False
         # return first to make sure we attack the first enemy in the direction
         previous_tile = (puck.position_on_board[0] + x_change * (i - 1), puck.position_on_board[1] + y_change * (i - 1))
-        if not BoardOperations.is_tile_to_take(previous_tile, enemies + allies):
+        allies_without_this_puck = [ally for ally in allies if not ally.is_same_puck(puck)]
+        if not BoardOperations.is_tile_to_take(previous_tile, enemies + allies_without_this_puck):
             return False
 
         if fill_puck_attack_tile(puck, x_change * i, y_change * i, allies, enemies, current_attack):
