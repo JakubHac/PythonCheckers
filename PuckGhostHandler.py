@@ -63,9 +63,7 @@ def spawn_attack_ghosts():
                 next_attack = attack[attack_sequence_length + 1]
                 for i in range(1, 8):
                     new_tile = tile[0] + i * direction[0], tile[1] + i * direction[1]
-                    if not BoardOperations.is_tile_on_board(new_tile):
-                        break
-                    if not BoardOperations.is_tile_empty(new_tile, State.white_player.pucks + State.black_player.pucks):
+                    if not BoardOperations.is_tile_to_take(new_tile, State.white_player.pucks + State.black_player.pucks):
                         break
                     x_diff = next_attack[0] - new_tile[0]
                     y_diff = next_attack[1] - new_tile[1]

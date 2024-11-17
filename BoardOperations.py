@@ -24,6 +24,13 @@ def is_attack_valid(from_tile, to_tile, is_dame, allies, enemies) -> bool:
     y_change = to_tile[1] - from_tile[1]
     return is_attack_direction_valid(from_tile, x_change, y_change, is_dame, allies, enemies)
 
+def is_tile_to_take(tile: tuple[int, int], pucks) -> bool:
+    if not is_tile_on_board(tile):
+        return False
+    if not is_tile_empty(tile, pucks):
+        return False
+    return True
+
 def is_attack_direction_valid(from_tile, x_change: int, y_change: int, is_dame, allies, enemies) -> bool:
     attack_self: bool = x_change == 0 and y_change == 0
     if attack_self:
@@ -58,16 +65,12 @@ def is_attack_direction_valid(from_tile, x_change: int, y_change: int, is_dame, 
     if not is_tile_on_board(tile_pos):
         # out of bounds, attack not possible, not an exception, expected when checking directions
         return False
-    if not is_tile_on_board(next_tile_pos):
+    if not is_tile_to_take(next_tile_pos, allies + enemies):
         # out of bounds, attack not possible, not an exception, expected when checking directions
         return False
 
     # find enemy on the tile
     if not any(e.position_on_board == tile_pos for e in enemies):
-        return False
-
-    # enemy found, check if next tile is empty
-    if not is_tile_empty(next_tile_pos, allies + enemies):
         return False
 
     return True
