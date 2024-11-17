@@ -80,52 +80,9 @@ def fill_dame_attack_in_direction(puck: Puck, x_change: int, y_change: int, alli
     return False
 
 def fill_puck_attack_tile(puck: Puck, x_change: int, y_change: int, allies: list[Puck], enemies: list[Puck], current_attack: list[tuple[int,int]] = None) -> bool: #return True if attack is possible, False otherwise
-    attack_self: bool = x_change == 0 and y_change == 0
-    if attack_self:
-        print("Invalid tile for attack")
-        #TODO: show message that this is invalid tile for attack
-        traceback.print_stack()
+    tile_pos = (puck.position_on_board[0] + x_change, puck.position_on_board[1] + y_change)
+    if not BoardOperations.is_attack_valid(puck.position_on_board, tile_pos, puck.is_dame, allies, enemies):
         return False
-    single_axis_move: bool = abs(x_change) == 0 or abs(y_change) == 0
-    if single_axis_move:
-        print("Invalid tile for attack")
-        # TODO: show message that this is invalid tile for attack
-        traceback.print_stack()
-        return False
-
-    if puck.is_dame:
-        diagonal_move: bool = abs(x_change) == abs(y_change)
-        if not diagonal_move:
-            print("Invalid tile for attack")
-            #TODO: show message that this is invalid tile for attack
-            traceback.print_stack()
-            return False
-    else:
-        long_move: bool = abs(x_change) > 1 or abs(y_change) > 1
-        if long_move:
-            print("Invalid tile for attack")
-            #TODO: show message that this is invalid tile for attack
-            traceback.print_stack()
-            return False
-
-    puck_pos = puck.position_on_board
-    tile_pos = (puck_pos[0] + x_change, puck_pos[1] + y_change)
-    next_tile_pos = (tile_pos[0] + MathUtil.clamp_np1(x_change), tile_pos[1] + MathUtil.clamp_np1(y_change))
-    if not BoardOperations.is_tile_on_board(tile_pos):
-        #out of bounds, attack not possible, not an exception, expected when checking directions
-        return False
-    if not BoardOperations.is_tile_on_board(next_tile_pos):
-        #out of bounds, attack not possible, not an exception, expected when checking directions
-        return False
-
-    #find enemy on the tile
-    if not any(e.position_on_board == tile_pos for e in enemies):
-        return False
-
-    #enemy found, check if next tile is empty
-    if not BoardOperations.is_tile_empty(next_tile_pos, allies + enemies):
-        return False
-
     #we got here, so the attack is possible
     #add this tile to the attack list
     if current_attack is not None:
