@@ -13,7 +13,7 @@ class Puck(Clickable, Tickable):
         self.position_on_board = position_on_board
         self.on_puck_click = on_puck_click
         self.is_dame = False
-        self.possible_attacks = [] #list, of lists, of tuples of tiles where enemies stand that this puck can attack in a sequence
+        self.possible_attacks: list[list[tuple[int, int]]] = [] #list, of lists, of tuples of tiles where enemies stand that this puck can attack in a sequence
         # [] = no possible attacks
         # [ [ (1,1) ], [ (1,1) , (3,3) ] ] = 2 possible attacks, first would take out 1 enemy, second would take out 2 enemies
         if uid is not None:

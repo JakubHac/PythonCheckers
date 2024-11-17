@@ -1,5 +1,3 @@
-import traceback
-
 import State
 from Puck import Puck
 from GameState import GameState
@@ -7,7 +5,6 @@ import PuckGhostHandler
 import PuckAttackHandler
 from State import game_state
 from TileState import TileState
-
 
 def start():
     State.chosen_puck = None

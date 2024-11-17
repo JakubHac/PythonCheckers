@@ -4,6 +4,7 @@ import State
 from GameState import GameState
 from PuckGhost import PuckGhost
 import PuckAttackHandler
+from Puck import Puck
 
 def despawn_puck_ghosts():
     ghosts = State.ghost_pucks.copy()
@@ -23,15 +24,43 @@ def spawn_move_ghosts_for_puck():
         spawn_ghost_for_tile(puck, direction, move_puck_ghost_clicked)
 
 def spawn_attack_ghosts():
-    puck = State.chosen_puck
-    tiles = set()
-    for attack in [atk for atk in puck.possible_attacks if len(atk) > len(State.current_attack_sequence)]:
-        attack_start = attack[:len(State.current_attack_sequence)]
+    puck: Puck = State.chosen_puck
+    attack_sequence_length = len(State.current_attack_sequence)
+    tiles_and_attacks: dict[tuple[int,int], list[list[tuple[int,int]]]] = {}
+    for attack in [atk for atk in puck.possible_attacks if len(atk) > attack_sequence_length]:
+        attack_start = attack[:attack_sequence_length]
         if attack_start == State.current_attack_sequence:
-            tiles.add(attack[len(State.current_attack_sequence)])
+            tile = attack[attack_sequence_length]
+            if tiles_and_attacks.get(tile) is not None:
+                tiles_and_attacks[tile].append(attack)
+            else:
+                tiles_and_attacks[tile] = [attack]
 
-    for tile in tiles:
-        PuckGhost(BoardOperations.get_puck_position_after_attack(puck, tile), State.puck_size, puck.color, attack_puck_ghost_clicked, tile)
+    if not puck.is_dame:
+        for tile in tiles_and_attacks.keys():
+            PuckGhost(BoardOperations.get_puck_position_after_attack(puck, tile), State.puck_size, puck.color, attack_puck_ghost_clicked, tile)
+        return
+
+    tiles_with_ghosts = set()
+
+    for tile in tiles_and_attacks.keys():
+        attacks = tiles_and_attacks[tile]
+        for attack in attacks:
+            is_last_move_in_attack = len(attack) == attack_sequence_length + 1
+            direction = tile[0] - puck.position_on_board[0], tile[1] - puck.position_on_board[1]
+            if is_last_move_in_attack: #pick any position in the direction of the attack:
+                for i in range(1, 8):
+                    new_tile = tile[0] + i * direction[0], tile[1] + i * direction[1]
+                    if not BoardOperations.is_tile_on_board(new_tile):
+                        break
+                    if not BoardOperations.is_tile_empty(new_tile, State.white_player.pucks + State.black_player.pucks):
+                        break
+                    if new_tile not in tiles_with_ghosts:
+                        PuckGhost(new_tile, State.puck_size, puck.color, attack_puck_ghost_clicked, tile)
+                        tiles_with_ghosts.add(new_tile)
+                pass
+            else: #spawn ghosts that will lead to the next position in attack
+                pass
 
 def move_puck_ghost_clicked(puck_ghost: PuckGhost):
     if State.game_state == GameState.WhiteChooseMove:
