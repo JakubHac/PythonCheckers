@@ -165,7 +165,7 @@ def execute_attack(attack: list[tuple[int,int]], puck: Puck, enemies: list[Puck]
     if not puck.is_dame:
         for tile in attack:
             BoardOperations.move_puck_after_attack(puck, tile)
-            return [puck.position_on_board]
+        return [puck.position_on_board]
     else:
         positions_before_attacks = []
         for tile in attack:
