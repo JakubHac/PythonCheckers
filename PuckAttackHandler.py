@@ -1,6 +1,7 @@
 import copy
 import traceback
 import BoardOperations
+import MathUtil
 import PythonUtils
 import State
 from Puck import Puck
@@ -29,6 +30,7 @@ def calculate_possible_attacks(ally_pucks: list[Puck], enemy_pucks: list[Puck]) 
     out_ally_pucks = ally_pucks_that_can_attack
     out_ally_pucks += ally_pucks_that_cannot_attack
 
+    # remove attacks that are not the longest, this has to be here or the sorting would not work (max() iterable argument is empty)
     for puck in out_ally_pucks:
         puck.possible_attacks = [attack for attack in puck.possible_attacks if len(attack) == max_attack_length]
 
@@ -108,11 +110,11 @@ def fill_puck_attack_tile(puck: Puck, x_change: int, y_change: int, allies: list
 
     puck_pos = puck.position_on_board
     tile_pos = (puck_pos[0] + x_change, puck_pos[1] + y_change)
-    next_tile_pos = (tile_pos[0] + x_change, tile_pos[1] + y_change)
-    if tile_pos[0] < 0 or tile_pos[0] > 7 or tile_pos[1] < 0 or tile_pos[1] > 7:
+    next_tile_pos = (tile_pos[0] + MathUtil.clamp_np1(x_change), tile_pos[1] + MathUtil.clamp_np1(y_change))
+    if not BoardOperations.is_tile_on_board(tile_pos):
         #out of bounds, attack not possible, not an exception, expected when checking directions
         return False
-    if next_tile_pos[0] < 0 or next_tile_pos[0] > 7 or next_tile_pos[1] < 0 or next_tile_pos[1] > 7:
+    if not BoardOperations.is_tile_on_board(next_tile_pos):
         #out of bounds, attack not possible, not an exception, expected when checking directions
         return False
 
@@ -129,9 +131,11 @@ def fill_puck_attack_tile(puck: Puck, x_change: int, y_change: int, allies: list
     if current_attack is not None:
         extended_attack = current_attack.copy()
         extended_attack.append(tile_pos)
-        puck.possible_attacks.append(extended_attack)
+        if not PythonUtils.list_contains(puck.possible_attacks, extended_attack):
+            puck.possible_attacks.append(extended_attack)
     else:
-        puck.possible_attacks.append([tile_pos])
+        if not PythonUtils.list_contains(puck.possible_attacks, [tile_pos]):
+            puck.possible_attacks.append([tile_pos])
     return True
 
 def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_attack: list[Puck], enemies_before_any_attack: list[Puck]) -> bool: #return True if attack was extended, False otherwise
@@ -139,11 +143,13 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
     enemies = copy.deepcopy(enemies_before_any_attack)
     puck_pos_before = copy.deepcopy(puck.position_on_board)
     allies = [ally for ally in allies_before_any_attack if not ally.is_same_puck(puck)]
-    execute_attack(attack, puck, enemies)
+    possible_positions_after_attack = execute_attack(attack, puck, enemies, allies)
     for direction in State.directions:
         if puck.is_dame:
-            if fill_dame_attack_in_direction(puck, direction[0], direction[1], allies, enemies, attack):
-                extended = True
+            for possible_positions_after_attack_tile in possible_positions_after_attack:
+                puck.move_to(possible_positions_after_attack_tile)
+                if fill_dame_attack_in_direction(puck, direction[0], direction[1], allies, enemies, attack):
+                    extended = True
         else:
             if fill_puck_attack_tile(puck, direction[0], direction[1], allies, enemies, attack):
                 extended = True
@@ -151,11 +157,29 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
     return extended
     pass
 
-def execute_attack(attack: list[tuple[int,int]], puck: Puck, enemies: list[Puck]):
+def execute_attack(attack: list[tuple[int,int]], puck: Puck, enemies: list[Puck], allies: list[Puck]) -> list[tuple[int,int]]: #returns list of tiles where the puck could move after the attack
     removed_enemies = []
     for e in [enemy for enemy in enemies if PythonUtils.list_contains(attack, enemy.position_on_board)]:
         removed_enemies.append(e.position_on_board)
         enemies.remove(e)
-    for tile in attack:
-        BoardOperations.move_puck_after_attack(puck, tile)
-    pass
+    if not puck.is_dame:
+        for tile in attack:
+            BoardOperations.move_puck_after_attack(puck, tile)
+            return [puck.position_on_board]
+    else:
+        positions_before_attacks = []
+        for tile in attack:
+            positions_before_attacks.append(puck.position_on_board)
+            BoardOperations.move_puck_after_attack(puck, tile)
+        position_before_last_attack = positions_before_attacks[-1]
+        last_attack = attack[-1]
+        direction_of_last_attack = (MathUtil.clamp_np1(last_attack[0] - position_before_last_attack[0]), MathUtil.clamp_np1(last_attack[1] - position_before_last_attack[1]))
+        result = []
+        for i in range(1,8):
+            tile = (last_attack[0] + direction_of_last_attack[0] * i, last_attack[1] + direction_of_last_attack[1] * i)
+            if not BoardOperations.is_tile_on_board(tile):
+                break
+            if not BoardOperations.is_tile_empty(tile, enemies + allies):
+                break
+            result.append(tile)
+        return result

@@ -5,6 +5,9 @@ def is_tile_empty(tile: tuple[int, int], pucks) -> bool:
         return False
     return True
 
+def is_tile_on_board(tile: tuple[int, int]) -> bool:
+    return 0 <= tile[0] < 8 and 0 <= tile[1] < 8
+
 def move_puck_after_attack(puck, tile: tuple[int, int]):
     puck.move_to(get_puck_position_after_attack(puck, tile))
     pass
