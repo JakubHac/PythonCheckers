@@ -31,6 +31,11 @@ def is_tile_to_take(tile: tuple[int, int], pucks) -> bool:
         return False
     return True
 
+def is_diagonal_move(from_tile, to_tile) -> bool:
+    x_change = to_tile[0] - from_tile[0]
+    y_change = to_tile[1] - from_tile[1]
+    return abs(x_change) == abs(y_change)
+
 def is_attack_direction_valid(from_tile, x_change: int, y_change: int, is_dame, allies, enemies) -> bool:
     attack_self: bool = x_change == 0 and y_change == 0
     if attack_self:
@@ -45,20 +50,19 @@ def is_attack_direction_valid(from_tile, x_change: int, y_change: int, is_dame, 
         traceback.print_stack()
         return False
 
-    if is_dame:
-        diagonal_move: bool = abs(x_change) == abs(y_change)
-        if not diagonal_move:
-            print("Invalid tile for attack")
-            # TODO: show message that this is invalid tile for attack
-            traceback.print_stack()
-            return False
-    else:
-        long_move: bool = abs(x_change) > 1 or abs(y_change) > 1
-        if long_move:
-            print("Invalid tile for attack")
-            # TODO: show message that this is invalid tile for attack
-            traceback.print_stack()
-            return False
+    diagonal_move: bool = abs(x_change) == abs(y_change)
+    if not diagonal_move:
+        print("Invalid tile for attack")
+        # TODO: show message that this is invalid tile for attack
+        traceback.print_stack()
+        return False
+
+    long_move: bool = abs(x_change) > 1 or abs(y_change) > 1
+    if long_move and not is_dame:
+        print("Invalid tile for attack")
+        # TODO: show message that this is invalid tile for attack
+        traceback.print_stack()
+        return False
 
     tile_pos = (from_tile[0] + x_change, from_tile[1] + y_change)
     next_tile_pos = (tile_pos[0] + MathUtil.clamp_np1(x_change), tile_pos[1] + MathUtil.clamp_np1(y_change))
