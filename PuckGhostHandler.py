@@ -1,4 +1,5 @@
 import BoardOperations
+import MathUtil
 import PythonUtils
 import State
 from GameState import GameState
@@ -47,7 +48,7 @@ def spawn_attack_ghosts():
         attacks = tiles_and_attacks[tile]
         for attack in attacks:
             is_last_move_in_attack = len(attack) == attack_sequence_length + 1
-            direction = tile[0] - puck.position_on_board[0], tile[1] - puck.position_on_board[1]
+            direction = MathUtil.clamp_np1(tile[0] - puck.position_on_board[0]), MathUtil.clamp_np1(tile[1] - puck.position_on_board[1])
             if is_last_move_in_attack: #pick any position in the direction of the attack:
                 for i in range(1, 8):
                     new_tile = tile[0] + i * direction[0], tile[1] + i * direction[1]
