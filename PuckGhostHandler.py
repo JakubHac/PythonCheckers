@@ -51,9 +51,7 @@ def spawn_attack_ghosts():
             if is_last_move_in_attack: #pick any position in the direction of the attack:
                 for i in range(1, 8):
                     new_tile = tile[0] + i * direction[0], tile[1] + i * direction[1]
-                    if not BoardOperations.is_tile_on_board(new_tile):
-                        break
-                    if not BoardOperations.is_tile_empty(new_tile, State.white_player.pucks + State.black_player.pucks):
+                    if not BoardOperations.is_tile_to_take(new_tile, State.white_player.pucks + State.black_player.pucks):
                         break
                     if new_tile not in tiles_with_ghosts:
                         PuckGhost(new_tile, State.puck_size, puck.color, attack_puck_ghost_clicked, tile)
