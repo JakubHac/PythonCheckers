@@ -42,8 +42,10 @@ def this_puck_has_longest_attack(puck: Puck, allies_sorted_by_possible_attacks: 
     return max_length_of_our_attack == max_length_of_allied_attack
 
 def extend_attacks(puck: Puck, allies_before_any_attack: list[Puck], enemies_before_any_attack: list[Puck], extend_attacks_of_length) -> bool: #return True if any attack was extended, False otherwise
-    if any([attack for attack in puck.possible_attacks if len(attack) > len(enemies_before_any_attack)]):
-        print("Puck at " + str(puck.position_on_board) + " has more possible attacks (" + str(len(puck.possible_attacks)) +") than enemies " + str(len(enemies_before_any_attack)) + ", something went wrong")
+    lengths_of_attacks = [len(attack) for attack in puck.possible_attacks]
+    max_length_of_attack = max(lengths_of_attacks) if len(lengths_of_attacks) > 0 else 0
+    if any(length for length in lengths_of_attacks if length > len(enemies_before_any_attack)):
+        print("Puck at " + str(puck.position_on_board) + " has a longer possible attack (" + str(max_length_of_attack) + ") than enemies " + str(len(enemies_before_any_attack)) + ", something went wrong")
         for attack in puck.possible_attacks:
             print(attack)
         return False
@@ -56,32 +58,30 @@ def extend_attacks(puck: Puck, allies_before_any_attack: list[Puck], enemies_bef
 
 def count_puck_possible_single_attacks_from_current_tile(puck: Puck, allies: list[Puck], enemies: list[Puck]):
     is_dame = puck.is_dame
+    can_attack = False
     for direction in State.directions:
         if is_dame:
             if fill_dame_attack_in_direction(puck, direction[0], direction[1], allies, enemies):
-                return True
+                can_attack = True
         else:
             if fill_puck_attack_tile(puck, direction[0], direction[1], allies, enemies):
-                return True
+                can_attack = True
+    return can_attack
 
 def fill_dame_attack_in_direction(puck: Puck, x_change: int, y_change: int, allies: list[Puck], enemies: list[Puck], current_attack: list[tuple[int,int]] = None) -> bool: #return True if attack is possible, False otherwise
     if not puck.is_dame:
         print("This puck is not a dame")
         return False
+    can_attack = False
     for i in range(1,8): #<1;8), the most tiles a puck can move is 7
-        is_occupied_by_ally = not BoardOperations.is_tile_empty((puck.position_on_board[0] + x_change * i, puck.position_on_board[1] + y_change * i), allies)
-        # if any ally is in the way, we cannot attack in this direction
-        if is_occupied_by_ally:
-            return False
-        # return first to make sure we attack the first enemy in the direction
         previous_tile = (puck.position_on_board[0] + x_change * (i - 1), puck.position_on_board[1] + y_change * (i - 1))
         allies_without_this_puck = [ally for ally in allies if not ally.is_same_puck(puck)]
         if not BoardOperations.is_tile_to_take(previous_tile, enemies + allies_without_this_puck):
-            return False
+            return can_attack
 
         if fill_puck_attack_tile(puck, x_change * i, y_change * i, allies, enemies, current_attack):
-            return True
-    return False
+            can_attack = True
+    return can_attack
 
 def fill_puck_attack_tile(puck: Puck, x_change: int, y_change: int, allies: list[Puck], enemies: list[Puck], current_attack: list[tuple[int,int]] = None) -> bool: #return True if attack is possible, False otherwise
     tile_pos = (puck.position_on_board[0] + x_change, puck.position_on_board[1] + y_change)
@@ -106,14 +106,14 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
     allies = [ally for ally in allies_before_any_attack if not ally.is_same_puck(puck)]
     possible_positions_after_attack = execute_attack(attack, puck, enemies, allies)
     for direction in State.directions:
-        if puck.is_dame:
-            for possible_positions_after_attack_tile in possible_positions_after_attack:
-                puck.move_to(possible_positions_after_attack_tile)
+        for possible_positions_after_attack_tile in possible_positions_after_attack:
+            puck.move_to(possible_positions_after_attack_tile)
+            if puck.is_dame:
                 if fill_dame_attack_in_direction(puck, direction[0], direction[1], allies, enemies, attack):
                     extended = True
-        else:
-            if fill_puck_attack_tile(puck, direction[0], direction[1], allies, enemies, attack):
-                extended = True
+            else:
+                if fill_puck_attack_tile(puck, direction[0], direction[1], allies, enemies, attack):
+                    extended = True
     puck.move_to(puck_pos_before)
     return extended
     pass
