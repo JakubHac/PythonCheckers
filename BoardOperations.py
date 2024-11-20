@@ -78,3 +78,23 @@ def is_attack_direction_valid(from_tile, x_change: int, y_change: int, is_dame, 
         return False
 
     return True
+
+
+def get_dame_positions_before_attacks(puck, attack: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    start_pos = puck.position_on_board
+    result = [start_pos]
+    previous_pos = start_pos
+    index = -1
+    for tile in attack[:-1]:
+        index += 1
+        direction = get_direction_of_attack(previous_pos, tile)
+        next_attack = attack[index + 1]
+        established_pos = previous_pos
+        while not is_diagonal_move(established_pos, next_attack):
+            established_pos = established_pos[0] + direction[0], established_pos[1] + direction[1]
+        result.append(established_pos)
+        previous_pos = established_pos
+    return result
+
+def get_direction_of_attack(from_tile, attack_tile) -> tuple[int, int]:
+    return MathUtil.clamp_np1(attack_tile[0] - from_tile[0]), MathUtil.clamp_np1(attack_tile[1] - from_tile[1])

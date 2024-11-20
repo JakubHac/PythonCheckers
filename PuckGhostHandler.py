@@ -32,6 +32,8 @@ def spawn_attack_ghosts():
         attack_start = attack[:attack_sequence_length]
         if attack_start == State.current_attack_sequence:
             tile = attack[attack_sequence_length]
+            if not BoardOperations.is_diagonal_move(puck.position_on_board, tile):
+                continue
             if tiles_and_attacks.get(tile) is not None:
                 tiles_and_attacks[tile].append(attack)
             else:
