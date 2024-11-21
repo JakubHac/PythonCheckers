@@ -91,7 +91,7 @@ def move_puck_ghost_clicked(puck_ghost: PuckGhost):
     if puck_ghost.promote_to_dame:
         State.chosen_puck.set_dame()
 
-    if State.chosen_puck.is_black:
+    if State.chosen_puck.is_black():
         State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks,State.black_player.pucks)
     else:
         State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks,State.white_player.pucks)
