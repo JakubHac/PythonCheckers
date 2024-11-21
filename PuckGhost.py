@@ -6,7 +6,7 @@ import MathUtil
 import State
 
 class PuckGhost(Clickable):
-    def __init__(self, board_pos: tuple[int,int], size: int, color, on_puck_click: callable, attack_pos: tuple[int,int] = None):
+    def __init__(self, board_pos: tuple[int,int], size: int, color, on_puck_click: callable, promote_to_dame: bool, attack_pos: tuple[int,int] = None):
         pos = MathUtil.board_to_puck_pos(board_pos)
         super().__init__(pos, (size, size), color)
         self.surf.set_alpha(100)
@@ -15,6 +15,7 @@ class PuckGhost(Clickable):
         Singletons.GameScreen.add_clickable(self)
         State.ghost_pucks.append(self)
         self.attack_pos = attack_pos
+        self.promote_to_dame = promote_to_dame
 
     def on_click(self):
         if State.debug_mouse_clicks:

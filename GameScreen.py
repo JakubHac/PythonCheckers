@@ -38,8 +38,8 @@ class GameScreen(Screen):
 
     def setup_pvp_game(self):
         State.is_debug_board = False
-        State.white_player = Human("Biały Gracz", True, Colors.white_puck_color, Game.puck_clicked)
-        State.black_player = Human("Czarny Gracz", False, Colors.black_puck_color, Game.puck_clicked)
+        State.white_player = Human("Biały Gracz", Colors.white_puck_color, Game.puck_clicked)
+        State.black_player = Human("Czarny Gracz", Colors.black_puck_color, Game.puck_clicked)
         Game.start()
 
     def setup_test_game(self):
