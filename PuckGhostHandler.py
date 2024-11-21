@@ -13,6 +13,13 @@ def despawn_puck_ghosts():
         ghost.destroy()
 
 def spawn_move_ghosts_for_dame():
+    puck = State.chosen_puck
+    for direction in State.directions:
+        for i in range(1, 8):
+            new_tile = puck.position_on_board[0] + i * direction[0], puck.position_on_board[1] + i * direction[1]
+            if not BoardOperations.is_tile_to_take(new_tile, State.white_player.pucks + State.black_player.pucks):
+                break
+            spawn_move_ghost_for_tile(puck, (direction[0] * i, direction[1] * i), move_puck_ghost_clicked)
     pass
 
 def spawn_move_ghosts_for_puck():
