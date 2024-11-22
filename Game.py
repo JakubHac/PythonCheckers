@@ -32,9 +32,9 @@ def try_select_puck_for_move(puck: Puck):
     else:
         State.game_state = GameState.WhiteChooseMove if puck.is_white() else GameState.BlackChooseMove
         if puck.is_dame:
-            PuckGhostHandler.spawn_move_ghosts_for_dame()
+            PuckGhostHandler.spawn_move_ghosts_for_dame(False, puck)
         else:
-            PuckGhostHandler.spawn_move_ghosts_for_puck()
+            PuckGhostHandler.spawn_move_ghosts_for_puck(False, puck)
 
 def puck_clicked(puck: Puck):
     if State.is_game_popup_shown:

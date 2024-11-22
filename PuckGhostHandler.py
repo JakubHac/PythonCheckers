@@ -13,24 +13,32 @@ def despawn_puck_ghosts():
     for ghost in ghosts:
         ghost.destroy()
 
-def spawn_move_ghosts_for_dame():
-    puck = State.chosen_puck
+def spawn_move_ghosts_for_dame(check_only: bool, puck: Puck) -> bool:
+    result = False
     for direction in State.directions:
         for i in range(1, 8):
             new_tile = puck.position_on_board[0] + i * direction[0], puck.position_on_board[1] + i * direction[1]
             if not BoardOperations.is_tile_to_take(new_tile, State.white_player.pucks + State.black_player.pucks):
                 break
-            spawn_move_ghost_for_tile(puck, (direction[0] * i, direction[1] * i), move_puck_ghost_clicked)
+            if spawn_move_ghost_for_tile(puck, (direction[0] * i, direction[1] * i), move_puck_ghost_clicked, check_only):
+                if check_only:
+                    return True
+                result = True
+    return result
     pass
 
-def spawn_move_ghosts_for_puck():
-    puck = State.chosen_puck
+def spawn_move_ghosts_for_puck(check_only: bool, puck: Puck) -> bool:
+    result = False
     for direction in State.directions:
         if puck.is_white() and direction[1] == 1:
             continue
         if puck.is_black() and direction[1] == -1:
             continue
-        spawn_move_ghost_for_tile(puck, direction, move_puck_ghost_clicked)
+        if spawn_move_ghost_for_tile(puck, direction, move_puck_ghost_clicked, check_only):
+            if check_only:
+                return True
+            result = True
+    return result
 
 def spawn_attack_ghosts():
     puck: Puck = State.chosen_puck
@@ -113,6 +121,22 @@ def move_puck_ghost_clicked(puck_ghost: PuckGhost):
     Singletons.GameScreen.popup_handler.popup_current_game_state()
     despawn_puck_ghosts()
 
+def check_if_puck_has_possible_actions(puck: Puck) -> bool:
+    if len(puck.possible_attacks) > 0:
+        return True
+    if puck.is_dame:
+        return spawn_move_ghosts_for_dame(True, puck)
+    else:
+        return spawn_move_ghosts_for_puck(True, puck)
+
+def check_if_current_player_has_any_possible_actions() -> bool:
+    #check attacks, if there are any, return True
+    pucks = State.white_player.pucks if State.game_state == GameState.WhiteChooseOwnPuck else State.black_player.pucks
+    for puck in pucks:
+        if check_if_puck_has_possible_actions(puck):
+            return True
+    return False
+
 def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
     if State.is_game_popup_shown:
         return #do not allow any actions when popup is shown
@@ -153,10 +177,13 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
     else:
         spawn_attack_ghosts()
 
-def spawn_move_ghost_for_tile(puck, direction, on_click: callable):
+def spawn_move_ghost_for_tile(puck, direction, on_click: callable, check_only: bool) -> bool:
     tile_pos: tuple[int, int] = (puck.position_on_board[0] + direction[0], puck.position_on_board[1] + direction[1])
     if BoardOperations.is_tile_to_take(tile_pos, State.white_player.pucks + State.black_player.pucks):
+        if check_only:
+            return True
         PuckGhost(tile_pos, State.puck_size, puck.color, on_click, is_position_promoting_to_dame(tile_pos, puck))
+    return False
 
 def is_position_promoting_to_dame(tile: tuple[int, int], puck: Puck) -> bool:
     return tile[1] == 0 if puck.is_white() else tile[1] == 7
