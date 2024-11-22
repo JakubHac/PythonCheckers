@@ -49,9 +49,11 @@ def spawn_attack_ghosts():
 
     if not puck.is_dame:
         longest_attack_length = max([len(attack) for attack in tiles_and_attacks.values()])
+        #only promote to dame if this is the last attack in the sequence
         is_last_attack = longest_attack_length == attack_sequence_length + 1
         for tile in tiles_and_attacks.keys():
-            PuckGhost(BoardOperations.get_puck_position_after_attack(puck, tile), State.puck_size, puck.color, attack_puck_ghost_clicked, is_ghost_position_promoting_to_dame(tile, puck) and is_last_attack, tile)
+            pos_after_attack = BoardOperations.get_puck_position_after_attack(puck, tile)
+            PuckGhost(pos_after_attack, State.puck_size, puck.color, attack_puck_ghost_clicked, is_position_promoting_to_dame(pos_after_attack, puck) and is_last_attack, tile)
         return
 
     tiles_with_ghosts = set()
@@ -67,7 +69,7 @@ def spawn_attack_ghosts():
                     if not BoardOperations.is_tile_to_take(new_tile, State.white_player.pucks + State.black_player.pucks):
                         break
                     if new_tile not in tiles_with_ghosts:
-                        PuckGhost(new_tile, State.puck_size, puck.color, attack_puck_ghost_clicked, is_ghost_position_promoting_to_dame(new_tile, puck), tile)
+                        PuckGhost(new_tile, State.puck_size, puck.color, attack_puck_ghost_clicked, False, tile)
                         tiles_with_ghosts.add(new_tile)
                 pass
             else: #spawn ghosts that will lead to the next position in attack
@@ -79,7 +81,6 @@ def spawn_attack_ghosts():
                     if not BoardOperations.is_diagonal_move(new_tile, next_attack):
                         continue
                     if new_tile not in tiles_with_ghosts:
-                        #only last attack in sequence can promote to dame
                         PuckGhost(new_tile, State.puck_size, puck.color, attack_puck_ghost_clicked, False, tile)
                         tiles_with_ghosts.add(new_tile)
                 pass
@@ -144,8 +145,8 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
 def spawn_move_ghost_for_tile(puck, direction, on_click: callable):
     tile_pos: tuple[int, int] = (puck.position_on_board[0] + direction[0], puck.position_on_board[1] + direction[1])
     if BoardOperations.is_tile_to_take(tile_pos, State.white_player.pucks + State.black_player.pucks):
-        PuckGhost(tile_pos, State.puck_size, puck.color, on_click, is_ghost_position_promoting_to_dame(tile_pos, puck))
+        PuckGhost(tile_pos, State.puck_size, puck.color, on_click, is_position_promoting_to_dame(tile_pos, puck))
 
-def is_ghost_position_promoting_to_dame(tile: tuple[int, int], puck: Puck) -> bool:
+def is_position_promoting_to_dame(tile: tuple[int, int], puck: Puck) -> bool:
     return tile[1] == 0 if puck.is_white() else tile[1] == 7
 
