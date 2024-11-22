@@ -103,6 +103,12 @@ def move_puck_ghost_clicked(puck_ghost: PuckGhost):
     else:
         State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks,State.white_player.pucks)
 
+    if not check_if_current_player_has_any_possible_actions():
+        if State.game_state == GameState.WhiteChooseOwnPuck:
+            State.game_state = GameState.BlackWon
+        elif State.game_state == GameState.BlackChooseOwnPuck:
+            State.game_state = GameState.WhiteWon
+
     State.chosen_puck = None
     Singletons.GameScreen.popup_handler.popup_current_game_state()
     despawn_puck_ghosts()
@@ -137,6 +143,11 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
                 State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
             else:
                 State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+            if not check_if_current_player_has_any_possible_actions():
+                if State.game_state == GameState.WhiteChooseOwnPuck:
+                    State.game_state = GameState.BlackWon
+                elif State.game_state == GameState.BlackChooseOwnPuck:
+                    State.game_state = GameState.WhiteWon
         Singletons.GameScreen.popup_handler.popup_current_game_state()
         State.chosen_puck = None
     else:
