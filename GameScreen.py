@@ -1,6 +1,7 @@
 from Blittable import Blittable
 from Button import Button
 import Colors
+from PopupHandler import PopupHandler
 from Screen import Screen
 import traceback
 import State
@@ -19,6 +20,8 @@ class GameScreen(Screen):
             pass
         super().__init__()
         Singletons.GameScreen = self
+        self.popup_handler = PopupHandler(self.set_game_popup_shown, self)
+        self.add_tickable(self.popup_handler)
         #ui
         back_button = Button((10, 10), (40, 30), Colors.white, "←", 20, State.noto_jp_font_name, Colors.black, self.quit_game)
         self.add_clickable(back_button)
@@ -31,8 +34,12 @@ class GameScreen(Screen):
                     color = Colors.black_tile_color
                 self.add_blittable(Blittable(MathUtil.board_to_screen_pos((i, j)), (State.tile_size, State.tile_size), color))
 
+    def set_game_popup_shown(self, value):
+        State.is_game_popup_shown = value
+
     def quit_game(self):
         Game.quit_game()
+        Game.popup().clear()
         State.active_screens.remove(self)
         State.active_screens.append(Singletons.MainMenuScreen)
 

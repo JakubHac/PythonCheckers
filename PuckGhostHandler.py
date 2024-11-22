@@ -1,6 +1,7 @@
 import BoardOperations
 import MathUtil
 import PythonUtils
+import Singletons
 import State
 from GameState import GameState
 from PuckGhost import PuckGhost
@@ -47,8 +48,10 @@ def spawn_attack_ghosts():
                 tiles_and_attacks[tile] = [attack]
 
     if not puck.is_dame:
+        longest_attack_length = max([len(attack) for attack in tiles_and_attacks.values()])
+        is_last_attack = longest_attack_length == attack_sequence_length + 1
         for tile in tiles_and_attacks.keys():
-            PuckGhost(BoardOperations.get_puck_position_after_attack(puck, tile), State.puck_size, puck.color, attack_puck_ghost_clicked, tile)
+            PuckGhost(BoardOperations.get_puck_position_after_attack(puck, tile), State.puck_size, puck.color, attack_puck_ghost_clicked, is_ghost_position_promoting_to_dame(tile, puck) and is_last_attack, tile)
         return
 
     tiles_with_ghosts = set()
@@ -82,6 +85,9 @@ def spawn_attack_ghosts():
                 pass
 
 def move_puck_ghost_clicked(puck_ghost: PuckGhost):
+    if State.is_game_popup_shown:
+        return #do not allow any actions when popup is shown
+
     if State.game_state == GameState.WhiteChooseMove:
         State.game_state = GameState.BlackChooseOwnPuck
     elif State.game_state == GameState.BlackChooseMove:
@@ -97,9 +103,13 @@ def move_puck_ghost_clicked(puck_ghost: PuckGhost):
         State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks,State.white_player.pucks)
 
     State.chosen_puck = None
+    Singletons.GameScreen.popup_handler.popup_current_game_state()
     despawn_puck_ghosts()
 
 def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
+    if State.is_game_popup_shown:
+        return #do not allow any actions when popup is shown
+
     State.chosen_puck.move_to(puck_ghost.position_on_board)
     State.current_attack_sequence.append(puck_ghost.attack_pos)
     if puck_ghost.promote_to_dame:
@@ -126,6 +136,7 @@ def attack_puck_ghost_clicked(puck_ghost: PuckGhost):
                 State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
             else:
                 State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+        Singletons.GameScreen.popup_handler.popup_current_game_state()
         State.chosen_puck = None
     else:
         spawn_attack_ghosts()

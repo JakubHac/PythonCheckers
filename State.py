@@ -25,3 +25,4 @@ black_pucks_sorted_by_possible_attacks = []
 directions: list[tuple[int, int]] = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 ghost_pucks = []
 current_attack_sequence: list[tuple[int, int]] = []
+is_game_popup_shown = False

@@ -1,3 +1,4 @@
+import Singletons
 import State
 from Puck import Puck
 from GameState import GameState
@@ -6,11 +7,14 @@ import PuckAttackHandler
 from State import game_state
 from TileState import TileState
 
+popup = lambda: Singletons.GameScreen.popup_handler
+
 def start():
     State.chosen_puck = None
     State.game_state = GameState.WhiteChooseOwnPuck
     State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
     State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+    popup().popup_current_game_state()
 
 def try_select_puck_for_move(puck: Puck):
     if ((State.game_state == GameState.WhiteChooseOwnPuck and puck.is_black())
@@ -18,7 +22,7 @@ def try_select_puck_for_move(puck: Puck):
         return
     sorted_allies = State.white_pucks_sorted_by_possible_attacks if puck.is_white() else State.black_pucks_sorted_by_possible_attacks
     if not PuckAttackHandler.this_puck_has_longest_attack(puck, sorted_allies):
-        # TODO: show message that this puck cannot attack
+        popup().show_popup("To nie ten pionek może zbić najwięcej pionków przeciwnika")
         return
     State.chosen_puck = puck
     PuckGhostHandler.despawn_puck_ghosts()
@@ -33,6 +37,8 @@ def try_select_puck_for_move(puck: Puck):
             PuckGhostHandler.spawn_move_ghosts_for_puck()
 
 def puck_clicked(puck: Puck):
+    if State.is_game_popup_shown:
+        return #do not allow any actions when popup is shown
     #handle choosing pucks for move
     if State.game_state == GameState.WhiteChooseOwnPuck or State.game_state == GameState.BlackChooseOwnPuck:
         try_select_puck_for_move(puck)
@@ -117,15 +123,16 @@ def set_tile(board_pos: tuple[int, int], tile_state: TileState):
     State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
     pass
 
-
 def swap_turn():
     if State.game_state == GameState.WhiteChooseOwnPuck:
         State.game_state = GameState.BlackChooseOwnPuck
         State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+        popup().popup_current_game_state()
         return
     if State.game_state == GameState.BlackChooseOwnPuck:
         State.game_state = GameState.WhiteChooseOwnPuck
         State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
+        popup().popup_current_game_state()
         return
     print("Cannot swap turn in state " + str(State.game_state))
     pass

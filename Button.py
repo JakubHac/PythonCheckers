@@ -11,12 +11,14 @@ class Button(Clickable):
         else:
             self.text = None
             self.to_display = ""
-        self.on_click = on_click
+        self.on_click_action = on_click
 
     def on_click(self):
+        if State.is_game_popup_shown:
+            return  # do not allow any actions when popup is shown
         if State.debug_mouse_clicks:
             print("Button " + self.to_display + " at " + str(self.rect.center) + " clicked")
-        self.on_click()
+        self.on_click_action()
 
     def blit(self):
         super().blit()
