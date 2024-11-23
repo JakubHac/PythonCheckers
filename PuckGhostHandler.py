@@ -56,7 +56,10 @@ def spawn_attack_ghosts():
                 tiles_and_attacks[tile] = [attack]
 
     if not puck.is_dame:
-        longest_attack_length = max([len(attack) for attack in tiles_and_attacks.values()])
+        longest_attack_length = 0
+        for attacks in tiles_and_attacks.values():
+            for attack in attacks:
+                longest_attack_length = max(longest_attack_length, len(attack))
         #only promote to dame if this is the last attack in the sequence
         is_last_attack = longest_attack_length == attack_sequence_length + 1
         for tile in tiles_and_attacks.keys():
