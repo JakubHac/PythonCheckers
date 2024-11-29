@@ -79,7 +79,6 @@ def is_attack_direction_valid(from_tile, x_change: int, y_change: int, is_dame, 
 
     return True
 
-
 def get_dame_positions_before_attacks(puck, attack: list[tuple[int, int]]) -> list[tuple[int, int]]:
     start_pos = puck.position_on_board
     result = [start_pos]
@@ -98,3 +97,27 @@ def get_dame_positions_before_attacks(puck, attack: list[tuple[int, int]]) -> li
 
 def get_direction_of_attack(from_tile, attack_tile) -> tuple[int, int]:
     return MathUtil.clamp_np1(attack_tile[0] - from_tile[0]), MathUtil.clamp_np1(attack_tile[1] - from_tile[1])
+
+def is_puck_position_promoting_to_dame(tile: tuple[int, int], puck) -> bool:
+    return tile[1] == 0 if puck.is_white() else tile[1] == 7
+
+def can_puck_become_dame_with_move(puck, others) -> bool:
+    if puck.is_dame:
+        return False
+    if puck.is_white():
+        if puck.position_on_board[1] != 1:
+            #too far from promotion
+            return False
+        if is_tile_to_take((puck.position_on_board[0] - 1, 0), others):
+            return True
+        if is_tile_to_take((puck.position_on_board[0] + 1, 0), others):
+            return True
+    else:
+        if puck.position_on_board[1] != 6:
+            #too far from promotion
+            return False
+        if is_tile_to_take((puck.position_on_board[0] - 1, 7), others):
+            return True
+        if is_tile_to_take((puck.position_on_board[0] + 1, 7), others):
+            return True
+    return False

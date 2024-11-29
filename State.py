@@ -26,3 +26,5 @@ directions: list[tuple[int, int]] = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 ghost_pucks = []
 current_attack_sequence: list[tuple[int, int]] = []
 is_game_popup_shown = False
+bot_player = None
+bot_move_callback = None

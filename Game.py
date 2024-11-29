@@ -14,6 +14,10 @@ def start():
     State.game_state = GameState.WhiteChooseOwnPuck
     State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
     State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+    if State.bot_player is not None:
+        State.bot_move_callback = State.bot_player.bot_move_on_popup_close
+    else:
+        State.bot_move_callback = None
     popup().popup_current_game_state()
 
 def try_select_puck_for_move(puck: Puck):

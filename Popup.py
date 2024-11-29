@@ -6,7 +6,7 @@ from Tickable import Tickable
 from Blittable import Blittable
 
 class Popup(Blittable, Tickable):
-    def __init__(self, to_display: str, font_size: int, display_time: float, on_close: callable):
+    def __init__(self, to_display: str, font_size: int, display_time: float, on_close: list[callable]):
         super().__init__((0, 0), (State.screen_width, State.screen_height), (0, 0, 0))
         self.surf.set_alpha(200)
         self.display_time = display_time
@@ -32,6 +32,8 @@ class Popup(Blittable, Tickable):
         passed = State.delta_time/1000.0
         self.display_time -= passed
         if self.display_time <= 0:
-            self.on_close(self)
+            for close in self.on_close:
+                if close is not None:
+                    close(self)
         pass
 

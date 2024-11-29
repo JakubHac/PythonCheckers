@@ -117,9 +117,7 @@ def extend_attack(attack: list[tuple[int, int]], puck: Puck, allies_before_any_a
     pass
 
 def execute_attack(attack: list[tuple[int,int]], puck: Puck, enemies: list[Puck], allies: list[Puck]) -> list[tuple[int,int]]: #returns list of tiles where the puck could move after the attack
-    removed_enemies = []
     for e in [enemy for enemy in enemies if PythonUtils.list_contains(attack, enemy.position_on_board)]:
-        removed_enemies.append(e.position_on_board)
         enemies.remove(e)
     if not puck.is_dame:
         for tile in attack:

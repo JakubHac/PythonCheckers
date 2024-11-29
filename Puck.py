@@ -40,6 +40,10 @@ class Puck(Clickable, Tickable):
         self.is_dame = True
         self.draw(self.color)
 
+    def unset_dame(self):
+        self.is_dame = False
+        self.draw(self.color)
+
     def draw(self, color):
         self.surf.set_colorkey((255, 0, 0))
         self.surf.fill((255, 0, 0))

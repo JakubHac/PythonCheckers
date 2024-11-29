@@ -26,8 +26,8 @@ class PopupHandler(Tickable):
             self.popup_shown_setter(False)
         pass
 
-    def show_popup(self, text_to_display):
-        popup = Popup(text_to_display, 20, 2.0, self.on_popup_close)
+    def show_popup(self, text_to_display, on_close: callable=None):
+        popup = Popup(text_to_display, 20, 2.0, [self.on_popup_close, on_close])
         if self.current_popup is None:
             self.current_popup = popup
             self.screen.add_blittable(self.current_popup)
@@ -49,17 +49,17 @@ class PopupHandler(Tickable):
 
     def popup_current_game_state(self):
         if State.game_state == GameState.WhiteChooseOwnPuck:
-            self.show_popup("Ruch Białego Gracza")
+            self.show_popup(State.white_player.name, State.bot_move_callback)
         elif State.game_state == GameState.BlackChooseOwnPuck:
-            self.show_popup("Ruch Czarnego Gracza")
+            self.show_popup(State.black_player.name, State.bot_move_callback)
         elif State.game_state == GameState.WhiteChooseMove:
-            self.show_popup("Wybór ruchu dla białego pionka")
+            self.show_popup("Wybór ruchu dla białego pionka", State.bot_move_callback)
         elif State.game_state == GameState.BlackChooseMove:
-            self.show_popup("Wybór ruchu dla czarnego pionka")
+            self.show_popup("Wybór ruchu dla czarnego pionka", State.bot_move_callback)
         elif State.game_state == GameState.WhiteChooseAttack:
-            self.show_popup("Wybór ataku dla białego pionka")
+            self.show_popup("Wybór ataku dla białego pionka", State.bot_move_callback)
         elif State.game_state == GameState.BlackChooseAttack:
-            self.show_popup("Wybór ataku dla czarnego pionka")
+            self.show_popup("Wybór ataku dla czarnego pionka", State.bot_move_callback)
         elif State.game_state == GameState.WhiteWon:
             self.show_popup("Wygrał biały gracz")
         elif State.game_state == GameState.BlackWon:

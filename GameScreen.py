@@ -45,25 +45,42 @@ class GameScreen(Screen):
 
     def setup_pvp_game(self):
         State.is_debug_board = False
+        State.bot_player = None
         State.white_player = Human("Biały Gracz", Colors.white_puck_color, Game.puck_clicked)
         State.black_player = Human("Czarny Gracz", Colors.black_puck_color, Game.puck_clicked)
         Game.start()
 
     def setup_test_game(self):
         State.is_debug_board = True
+        State.bot_player = None
         State.white_player = Human("Biały Gracz", Colors.white_puck_color, Game.puck_clicked)
         State.black_player = Human("Czarny Gracz", Colors.black_puck_color, Game.puck_clicked)
         Game.start()
 
-    def setup_pve_game(self):
+    def setup_pve_game_aggressive(self):
         State.is_debug_board = False
         human_is_white = MathUtil.random_bool()
         if human_is_white:
             State.white_player = Human("Gracz (Białe)", Colors.white_puck_color, Game.puck_clicked)
-            State.black_player = Bot("Komputer (Czarne)", Colors.black_puck_color, Game.puck_clicked)
+            State.black_player = Bot("Komputer (Czarne)", Colors.black_puck_color, Game.puck_clicked, 6, 10, 31, 41)
+            State.bot_player = State.black_player
         else:
-            State.white_player = Human("Komputer (Białe)", Colors.white_puck_color, Game.puck_clicked)
-            State.black_player = Bot("Gracz (Czarne)", Colors.black_puck_color, Game.puck_clicked)
+            State.white_player = Bot("Komputer (Białe)", Colors.white_puck_color, Game.puck_clicked, 6, 10, 31, 41)
+            State.black_player = Human("Gracz (Czarne)", Colors.black_puck_color, Game.puck_clicked)
+            State.bot_player = State.white_player
+        Game.start()
+
+    def setup_pve_game_defensive(self):
+        State.is_debug_board = False
+        human_is_white = MathUtil.random_bool()
+        if human_is_white:
+            State.white_player = Human("Gracz (Białe)", Colors.white_puck_color, Game.puck_clicked)
+            State.black_player = Bot("Komputer (Czarne)", Colors.black_puck_color, Game.puck_clicked, 10, 8, 31, 25)
+            State.bot_player = State.black_player
+        else:
+            State.white_player = Bot("Komputer (Białe)", Colors.white_puck_color, Game.puck_clicked, 10, 8, 31, 25)
+            State.black_player = Human("Gracz (Czarne)", Colors.black_puck_color, Game.puck_clicked)
+            State.bot_player = State.white_player
         Game.start()
 
     def add_puck(self, puck):
