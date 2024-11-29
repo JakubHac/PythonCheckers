@@ -77,30 +77,30 @@ class Bot(Player):
                 self.puck_for_action = puck_to_become_dame
                 self.puck_move = possible_positions[random.randint(0, len(possible_positions) - 1)]
                 self.puck_attack = None
-                return
-            #choose move with best score
-            moveable_pucks = [puck for puck in sorted_pucks if PuckGhostHandler.check_if_puck_has_possible_actions(puck)]
-            best_value = float('-inf')
-            best_position = None
-            best_puck_uid = None
-            for puck in moveable_pucks:
-                position_before = puck.position_on_board
-                possible_positions = []
-                if puck.is_dame:
-                    PuckGhostHandler.spawn_move_ghosts_for_dame(True, puck, possible_positions)
-                else:
-                    PuckGhostHandler.spawn_move_ghosts_for_puck(True, puck, possible_positions)
-                for pos in possible_positions:
-                    puck.move_to(pos)
-                    value = self.score_board_after_enemy_attack(moveable_pucks, enemies)
-                    if value > best_value:
-                        best_value = value
-                        best_position = pos
-                        best_puck_uid = puck.uid
-                puck.move_to(position_before)
-            self.puck_for_action = [puck for puck in sorted_pucks if puck.uid == best_puck_uid][0]
-            self.puck_move = best_position
-            self.puck_attack = None
+            else:
+                #choose move with best score
+                moveable_pucks = [puck for puck in sorted_pucks if PuckGhostHandler.check_if_puck_has_possible_actions(puck)]
+                best_value = float('-inf')
+                best_position = None
+                best_puck_uid = None
+                for puck in moveable_pucks:
+                    position_before = puck.position_on_board
+                    possible_positions = []
+                    if puck.is_dame:
+                        PuckGhostHandler.spawn_move_ghosts_for_dame(True, puck, possible_positions)
+                    else:
+                        PuckGhostHandler.spawn_move_ghosts_for_puck(True, puck, possible_positions)
+                    for pos in possible_positions:
+                        puck.move_to(pos)
+                        value = self.score_board_after_enemy_attack(moveable_pucks, enemies)
+                        if value > best_value:
+                            best_value = value
+                            best_position = pos
+                            best_puck_uid = puck.uid
+                    puck.move_to(position_before)
+                self.puck_for_action = [puck for puck in sorted_pucks if puck.uid == best_puck_uid][0]
+                self.puck_move = best_position
+                self.puck_attack = None
 
         if self.puck_attack is not None:
             for enemy in enemies:
