@@ -4,6 +4,7 @@ import random
 import BoardOperations
 import PuckAttackHandler
 import PuckGhostHandler
+import PythonUtils
 import Singletons
 import State
 from GameState import GameState
@@ -45,7 +46,7 @@ class Bot(Player):
                     puck = [puck for puck in allies_copy if puck.uid == attack_puck.uid][0]
                     allies_copy = [puck for puck in allies_copy if puck.uid != attack_puck.uid]
                     enemies_copy = deepcopy(enemies)
-                    possible_positions = PuckAttackHandler.execute_attack(attack, puck, allies_copy, enemies_copy)
+                    possible_positions = PuckAttackHandler.execute_attack(attack, puck, enemies_copy, allies_copy)
                     was_dame = puck.is_dame
                     for pos in possible_positions:
                         puck.move_to(pos)
@@ -102,7 +103,11 @@ class Bot(Player):
             self.puck_attack = None
 
         if self.puck_attack is not None:
-            PuckAttackHandler.execute_attack(self.puck_attack, self.puck_for_action, sorted_pucks, enemies)
+            for enemy in enemies:
+                if PythonUtils.list_contains(self.puck_attack, enemy.position_on_board):
+                    enemy.destroy()
+
+            PuckAttackHandler.execute_attack(self.puck_attack, self.puck_for_action, enemies, sorted_pucks)
             self.puck_for_action.move_to(self.puck_move)
             if BoardOperations.is_puck_position_promoting_to_dame(self.puck_for_action.position_on_board, self.puck_for_action):
                 self.puck_for_action.set_dame()
@@ -120,11 +125,11 @@ class Bot(Player):
             best_allies = []
             best_enemies = []
             best_value = 0
-            for puck in enemy_pucks_sorted_by_possible_attacks:
-                for attack in puck.possible_attacks:
+            for enemy_puck in enemy_pucks_sorted_by_possible_attacks:
+                for attack in enemy_puck.possible_attacks:
                     allies_copy = deepcopy(allies)
                     enemies_copy = deepcopy(enemies)
-                    puck_copy = [enemy for enemy in enemies_copy if enemy.uid == puck.uid][0]
+                    puck_copy = [enemy for enemy in enemies_copy if enemy.uid == enemy_puck.uid][0]
                     PuckAttackHandler.execute_attack(attack, puck_copy, allies_copy, enemies_copy)
                     if BoardOperations.is_puck_position_promoting_to_dame(puck_copy.position_on_board, puck_copy):
                         puck_copy.set_dame()
@@ -155,6 +160,8 @@ class Bot(Player):
 
             State.game_state = GameState.BlackChooseOwnPuck
 
+            self.recaluclate_possible_attacks_after_bot_move()
+
             if not PuckGhostHandler.check_if_current_player_has_any_possible_actions():
                 if State.game_state == GameState.WhiteChooseOwnPuck:
                     State.game_state = GameState.BlackWon
@@ -166,6 +173,8 @@ class Bot(Player):
             self.bot_choose_puck(bot_is_white)
 
             State.game_state = GameState.WhiteChooseOwnPuck
+
+            self.recaluclate_possible_attacks_after_bot_move()
 
             if not PuckGhostHandler.check_if_current_player_has_any_possible_actions():
                 if State.game_state == GameState.WhiteChooseOwnPuck:
@@ -184,3 +193,10 @@ class Bot(Player):
         for puck in enemies:
             score -= self.enemy_dame_weight if puck.is_dame else self.enemy_puck_weight
         return score
+
+    def recaluclate_possible_attacks_after_bot_move(self):
+        if self.is_white:
+            State.black_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.black_player.pucks, State.white_player.pucks)
+        else:
+            State.white_pucks_sorted_by_possible_attacks = PuckAttackHandler.calculate_possible_attacks(State.white_player.pucks, State.black_player.pucks)
+        pass
